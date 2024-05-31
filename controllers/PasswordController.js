@@ -1,7 +1,7 @@
 const asyncHandler= require('express-async-handler')
 const bcrypt = require('bcryptjs')
 const { User,validateEmail, validateNewPassword } =require('./../models/User');
-const VerificationToken = require('../models/VerificationToken');
+const VerificationToken = require('./../models/VerificationToken');
 const crypto = require ('crypto')
 const sendEmail = require('../utils/sendEmail');
 
@@ -17,6 +17,7 @@ const sendEmail = require('../utils/sendEmail');
 
 module.exports.sendPasswordLinkCtrl=asyncHandler(async(req,res)=>{
     //1 validation
+    console.log(req.body);
     const {error} = validateEmail(req.body)
     if (error) {
         res.status(400).json({messae:error.details[0].message})
@@ -65,15 +66,17 @@ module.exports.sendPasswordLinkCtrl=asyncHandler(async(req,res)=>{
 ------------------*/
 
 module.exports.getResetPasswordLinkCtrl =asyncHandler(async(req,res)=>{
-
-    const {user} = await User.findById(req.params.userId)
+console.log("userId "+req.params.userId);
+    const user = await User.findById(req.params.userId)
+    console.log(user);
     if (!user) {
         res.status(400).json({messae:'Invalid link'})
     }
 
     let verificationToken = await VerificationToken.findOne({user:user._id,token:req.params.token})
-     if (!verificationToken) {
-        res.status(400).json({messae:'Invalid link'})
+     
+    if (!verificationToken) {
+        res.status(400).json({messae:'Invalid link 2'})
 
         
      }
@@ -102,7 +105,7 @@ module.exports.resetPasswordCtrl =asyncHandler(async(req,res)=>{
          res.status(400).json({messae:error.details[0].message})
      }
      // 2 get the user from db by sendEmail
-     const user = await User.findOne({email:req.params.userId})
+     const user = await User.findById(req.params.userId)
      if (!user) {
          res.status(400).json({messae:'Invalid Link'})
      }
@@ -125,7 +128,7 @@ module.exports.resetPasswordCtrl =asyncHandler(async(req,res)=>{
     await user.save()
 
    
-    await verificationToken.remove()
+    await verificationToken.deleteOne()
     res.status(200).json({message:'Password reset successfully, Please log in'})
 
 

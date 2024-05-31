@@ -24,6 +24,7 @@
     "mongoose": "^8.1.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
+    "websocket": "^1.0.35",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
